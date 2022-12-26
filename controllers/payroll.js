@@ -45,8 +45,23 @@ const deletePayroll = async (req, res, next) => {
 
 const updatePayroll = async (req, res, next) => {
     try {
+        const { payrollId, name, designation, basicPay, incentivePay, houseRentAllowance, mealAllowance, providentFund, loan } = req.body;
         const db = getDb();
-        // const 
+        const [payroll] = await db.collection("payroll").findOne({ _id: ObjectId(payrollId) }).toArray();
+        const newPayroll = {
+            name: name || payroll.name,
+            designation: designation || payroll.designation,
+            basicPay: Number(basicPay) || payroll.basicPay,
+            incentivePay: Number(incentivePay) || payroll.incentivePay,
+            houseRentAllowance: Number(houseRentAllowance) || payroll.houseRentAllowance,
+            mealAllowance: Number(mealAllowance) || payroll.mealAllowance,
+            providentFund: Number(providentFund) || payroll.providentFund,
+            loan: Number(loan) || payroll.loan
+        };
+
+        const updatedPayroll = await db.collection("payroll").findOneAndUpdate({ _id: ObjectId(payrollId) }, newPayroll);
+        if (updatedPayroll) res.status(200).json({ message: "Payroll Updated successfully!", data: newPayroll });
+
     } catch (err) {
         next(err);
     }
